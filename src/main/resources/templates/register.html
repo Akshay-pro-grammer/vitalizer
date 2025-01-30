@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{base ::parent(~{::#content})}">
+
+<head>
+    <title>Title</title>
+</head>
+
+<body>
+    <div id="content" class="mt-5">
+        <div class="grid grid-cols-12">
+             <!-- first part -->
+            <div class="col-start-4 md:col-span-2 lg:col-span-3 xl:col-span-4"></div>
+            <!-- second part -->
+            <div class="col-span-12 md:col-span-8 lg:col-span-6 xl:col-span-4 relative items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-purple-600 to-blue-500 hover:text-white dark:text-white shadow">
+                <div
+                    class="relative px-5 py-2 bg-white dark:bg-gray-900 rounded-md">
+                    
+                    <!-- message here -->
+                     <div th:replace="~{message :: messagebox}">
+
+                     </div>
+                     <!-- heading -->
+                    <h5 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Signup Here</h5>
+                    <p class="font-normal text-gray-500 dark:text-gray-400">Start your healthy journey with Vitalize</p>
+                    <hr>
+                    <!-- form starts -->
+                    <form th:action="@{'doregister'}" th:object="${userForm}" method="post" class="mt-4">
+                        <!-- name -->
+                        <div class="mb-3">
+                            <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                Name</label>
+                            <input type="text" id="name"
+                                th:field="*{name}"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="Name Here" />
+                        </div>
+                        <p class="text-red-600" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+                        <!-- email -->
+                        <div class="mt-2">
+                            <label for="email"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                            <input type="email" id="email"
+                            th:field="*{email}"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="example@gmail.com" />
+                        </div>
+                        <p class="text-red-600" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+                        <!-- password -->
+                        <div class="mt-2">
+                            <label for="password"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your
+                                password</label>
+                            <input type="password" id="password" placeholder="•••••••••"
+                                th:field="*{password}"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                />
+                        </div>
+                        <p class="text-red-600" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+                        <!-- number -->
+                        <div class="mt-2">
+                            <label for="phone"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Contact
+                                Number</label>
+                            <input type="text" id="phone" placeholder="without +91"
+                                th:field="*{phoneNumber}"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                 />
+                        </div>
+                        <p class="text-red-600" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></p>
+                        <!-- message -->
+                        <label for="message" class="block mt-2 text-sm font-medium text-gray-900 dark:text-white">About you</label>
+                        <textarea id="message" rows="4"
+                        th:field="*{about}"
+                            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="Write about yourself"></textarea>
+                        <div class="mb-3 mt-1 flex justify-center space-x-3">
+
+                            <button id="submitBtn" type="submit" class="px-3 py-2 rounded bg-blue-700 text-white">Signup</button>
+                            <button type="reset" class="px-3 py-2 rounded bg-red-900 text-white">Reset</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('submitBtn').addEventListener('click',function(){
+            localStorage.setItem('name',document.getElementById('name').value);
+        })
+    </script>
+</body>
+
+</html>

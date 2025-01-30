@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html th:replace="~{base ::parent(~{::#content})}">
+
+<head>
+    <title>Symptoms List</title>
+    <style>
+        /* Optional: Custom styles for input and button */
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
+        }
+    </style>
+</head>
+
+<body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+    <div id="content" class="p-8">
+        <div class="sticky top-0 z-10 bg-white dark:bg-gray-900 shadow-md">
+            <label for="table-search" class="sr-only">Search</label>
+            <div class="px-2 py-2 relative mt-1">
+                <div class="absolute inset-y-0 start-0 flex items-center ps-3">
+                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                    </svg>
+                </div>
+                <input type="text" id="table-search"
+                    class="block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="Search" onkeyup="searchSymptoms()" />
+            </div>
+        </div>
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="max-height: 300px; overflow-y: auto">
+            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">Body ID</th>
+                        <th scope="col" class="px-6 py-3">Body Name</th>
+                    </tr>
+                </thead>
+                <tbody id="symptomsTable">
+                    <tr th:each="body : ${bodyList}"
+                        class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        <td class="py-2 px-4" th:text="${body.ID}"></td>
+                        <td class="py-2 px-4" th:text="${body.Name}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Input and Submit Form -->
+        <form class="mt-4" onsubmit="event.preventDefault(); sendMessage();">
+            <div class="p-8 mb-4 bg-white dark:bg-gray-900 shadow-md rounded-lg">
+                <label for="body-sub" class="block text-gray-700 dark:text-gray-200 mb-2">Enter ID (only one)</label>
+                <input type="text" id="body-sub"
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="comma separated 1,2,3" />
+                <button type="submit" id="submit-body"
+                    class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700">
+                    Submit
+                </button>
+            </div>
+            <div id="successalert" class="hidden p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
+                <span class="font-medium">Success alert!</span> if you want to submit body id again then reload the page
+            </div>
+        </form>
+
+        <!-- Container for displaying fetched results -->
+        <div id="fetchedResults" class="p-8 shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Sub Body of Selected Results</h2>
+        </div>
+
+        <form id="submit-body-sub" class="hidden mt-4" onsubmit="event.preventDefault(); submitSecondForm();">
+            <div class="p-8 mb-4 bg-white dark:bg-gray-900 shadow-md rounded-lg">
+                <label for="body-sub2" class="block text-gray-700 dark:text-gray-200 mb-2">Enter ID (only one)</label>
+                <input type="text" id="body-sub2"
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="comma separated 1,2,3" />
+                    <div class="relative">
+                        <label for="gender" class="block text-gray-700 dark:text-gray-300 mb-2">Select Gender:</label>
+                        <select id="gender" class="block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-300">
+                            <option value="" disabled selected>Select your option</option>
+                            <option value="boy">Boy</option>
+                            <option value="girl">Girl</option>
+                            <option value="woman">Woman</option>
+                            <option value="man">Man</option>
+                        </select>
+                    </div>
+                    
+                <button type="submit" id="submitBtn"
+                    class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700">
+                    Submit
+                </button>
+            </div>
+        </form>
+
+        <div id="fetchedResults2" class="p-8 shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Results</h2>
+            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 mt-4" id="subBodyTable">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">Id</th>
+                        <th scope="col" class="px-6 py-3">Name</th>
+                        <th scope="col" class="px-6 py-3">Synonyms</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-600" id="subBodyTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <script src="/js/sendforsubbody.js"></script>
+        <script src="/js/symptoms.js"></script>
+        <script src="/js/sendforbody.js"></script>
+    </div>
+</body>
+
+</html>

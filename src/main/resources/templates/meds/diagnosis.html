@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html th:replace="~{base ::parent(~{::#content})}">
+
+<head>
+    <title>Diagnosis Results</title>
+</head>
+
+<body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+    <div id="content" class="p-8">
+        <h2 class="text-xl font-semibold mb-4">Diagnosis Results</h2>
+        <div class="overflow-x-auto">
+            <table
+                class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md">
+                <thead>
+                    <tr class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                        <th class="py-3 px-4 border-b border-gray-300 dark:border-gray-600">Issue</th>
+                        <th class="py-3 px-4 border-b border-gray-300 dark:border-gray-600">Accuracy</th>
+                        <th class="py-3 px-4 border-b border-gray-300 dark:border-gray-600">ICD Code</th>
+                        <th class="py-3 px-4 border-b border-gray-300 dark:border-gray-600">Specialisation</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
+                    <tr th:each="diagnosis : ${diagnosisResults}"
+                        class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                        <td class="py-2 px-4 border-b border-gray-300 dark:border-gray-600"
+                            th:text="${diagnosis.Name} + ' (' + ${diagnosis.IcdName} + ')'"></td>
+                        <td class="py-2 px-4 border-b border-gray-300 dark:border-gray-600 text-center"
+                            th:text="${diagnosis.Accuracy} + '%'"></td>
+                        <td class="py-2 px-4 border-b border-gray-300 dark:border-gray-600 text-center"
+                            th:text="${diagnosis.Icd}"></td>
+                        <td class="py-2 px-4 border-b border-gray-300 dark:border-gray-600">
+                            <ul>
+                                <li th:each="spec : ${diagnosis.Specialisation}" th:text="${spec.Name}"
+                                    class="text-gray-800 dark:text-gray-200"></li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <section class="bg-gray-50 dark:bg-gray-900 mx-5 my-8 w-[80%]">
+            <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+                <div
+                    class="w-full bg-white shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+                    <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+                        <h1
+                            class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                            Need Help regarding the content above?
+                        </h1>
+                        <div class="space-y-4 md:space-y-6">
+                            <div>
+                                <label for="text"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Write
+                                    here</label>
+                                <input type="text" id="helptext" name="text" placeholder="Explain more here (optional)"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            </div><button th:onclick="Deliver()"
+                                class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700">
+                                Explain using ai
+                            </button>
+
+                            <div
+                                id="blockofcode"
+                                class="hidden p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                                <p id="helptextresult" class="font-normal text-gray-700 dark:text-gray-400">
+
+                                </p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <script th:inline="javascript">
+            async function Deliver() {
+                let element = document.getElementById("helptext");
+                let text = element.value;
+                let res = /*[[${diagnosisResults}]]*/ null;
+                let message = (res || []).map(element => element.Name).join(' ') + ' ' + text;
+                // console.log(problem);
+
+                try {
+                    const response = await fetch('/chat/send', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message })
+                    });
+
+                    const data = await response.json();
+                    let textres = document.getElementById("helptextresult")
+                    let el2=document.getElementById("blockofcode");
+                    el2.classList.remove("hidden");
+                    el2.classList.add("block");
+                    textres.innerHTML = data.response.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/\* /g, "<br>");
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+        </script>
+    </div>
+</body>
+
+</html>
