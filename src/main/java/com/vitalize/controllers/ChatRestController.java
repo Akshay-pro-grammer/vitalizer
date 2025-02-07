@@ -46,11 +46,12 @@ public class ChatRestController {
     @PostMapping("/sentiment")
     public String analyzeSentiment(@RequestBody Map<String, String> request) {
         String message = request.get("message");
+        String model=request.get("model");
 
         try {
             // Create JSON request body
             JSONObject json = new JSONObject();
-            json.put("model", "deepseek-r1:1.5b"); // Set the model name
+            json.put("model", model); // Set the model name
             json.put("prompt", message);
             json.put("stream", false); // Disable streaming mode
 
@@ -73,5 +74,5 @@ public class ChatRestController {
             return "Error communicating with Ollama: " + e.getMessage();
         }
     }
-
+    
 }

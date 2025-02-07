@@ -1,30 +1,40 @@
 <!DOCTYPE html>
 <html lang="en" th:replace="~{base ::parent(~{::#content})}">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat</title>
 </head>
+
 <body id="content" class="bg-gray-100 flex items-center justify-center min-h-screen">
 
   <!-- Chat Container -->
   <div class="mx-auto my-10 w-1/2 bg-white rounded-lg shadow-lg p-8">
-    <div class="flex items-center p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
-      <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+    <div
+      class="flex items-center p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
+      role="alert">
+      <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+        fill="currentColor" viewBox="0 0 20 20">
+        <path
+          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
       </svg>
       <span class="sr-only">Info</span>
       <div>
-        <span class="font-medium">Warning !</span> Local model requires a GPU with sufficient memory to run. you can still run short responses
+        <span class="font-medium">Warning !</span> Local model requires a GPU with sufficient memory to run. You might
+        have to wait a little
       </div>
     </div>
     <!-- Chat Header -->
     <div class="flex items-center justify-between mb-4">
-      <h2 class="mx-auto text-2xl font-semibold text-gray-800">Chat with Vitalizer</h2>
+      <h2 class=" w-3/5 text-2xl font-semibold text-gray-800">Chat with Vitalizer</h2>
+      <select id="model-list"
+        class="block w-1/5 border border-gray-300 rounded-md bg-white text-black dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </select>
     </div>
     <!-- Chat Box -->
     <div id="chat-box" class="flex flex-col space-y-4 mb-4 overflow-y-auto h-96 p-2 rounded border border-gray-300">
-     
+
       <div class="flex justify-start">
         <div class="bg-gray-200 text-gray-700 p-3 rounded-lg max-w-xs shadow">
           Hi there! How can I assist you today?
@@ -35,8 +45,9 @@
     <!-- Message Input Form -->
     <form id="chat-form" class="flex items-center space-x-3" onsubmit="sendLocalMessage(event)">
       <input type="text" id="message-input" placeholder="Type your message..."
-             class="text-black dark:text-gray-100 mx-auto w-full border border-gray-300 dark:border-gray-600 rounded-full px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white dark:bg-gray-700">
-      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-full shadow hover:bg-blue-600 transition duration-200">
+        class="text-black dark:text-gray-100 mx-auto w-full border border-gray-300 dark:border-gray-600 rounded-full px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white dark:bg-gray-700">
+      <button type="submit"
+        class="bg-blue-500 text-white px-4 py-2 rounded-full shadow hover:bg-blue-600 transition duration-200">
         Send
       </button>
     </form>
@@ -44,59 +55,92 @@
 
   <script>
     async function sendLocalMessage(event) {
-  event.preventDefault(); // Prevent form from submitting normally
+      event.preventDefault(); // Prevent form from submitting normally
+      let model=document.getElementById("model-list").value;
+      if(!model){
+        model="deepseek-r1:1.5b"
+      }
+      const message = document.getElementById('message-input').value.trim();
+      if (!message) return;
 
-  const message = document.getElementById('message-input').value.trim();
-  if (!message) return;
+      displayMessage('user', message); // Show user's message
+      document.getElementById('message-input').value = ''; // Clear input
 
-  displayMessage('user', message); // Show user's message
-  document.getElementById('message-input').value = ''; // Clear input
+      // Show a temporary "Thinking..." message while waiting for response
+      const loadingMessage = displayMessage('vita', 'Thinking...');
+      try {
+        const response = await fetch('/chat/sentiment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message,model})
+        });
 
-  // Show a temporary "Thinking..." message while waiting for response
-  const loadingMessage = displayMessage('vita', 'Thinking...');
+        if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+        }
 
-  try {
-    const response = await fetch('/chat/sentiment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message })
-    });
+        const data = await response.text(); // Handle response as text
 
-    if (!response.ok) {
-      throw new Error('Network response was not ok ' + response.statusText);
+        // Replace "Thinking..." with the actual response
+        loadingMessage.innerHTML = `<div class="bg-gray-200 text-gray-700 p-3 rounded-lg max-w-xs shadow">${data}</div>`;
+
+      } catch (error) {
+        console.error('Error:', error);
+        loadingMessage.innerHTML = `<div class="bg-red-500 text-white p-3 rounded-lg max-w-xs shadow">Sorry, something went wrong.</div>`;
+      }
     }
 
-    const data = await response.text(); // Handle response as text
+    function displayMessage(sender, text) {
+      const chatBox = document.getElementById('chat-box');
+      const messageElement = document.createElement('div');
 
-    // Replace "Thinking..." with the actual response
-    loadingMessage.innerHTML = `<div class="bg-gray-200 text-gray-700 p-3 rounded-lg max-w-xs shadow">${data}</div>`;
+      // Determine alignment and style based on sender
+      if (sender === 'user') {
+        messageElement.className = 'flex justify-end';
+        messageElement.innerHTML = `<div class="bg-blue-500 text-white p-3 rounded-lg max-w-xs shadow">${text}</div>`;
+      } else {
+        messageElement.className = 'flex justify-start';
+        messageElement.innerHTML = `<div class="bg-gray-200 text-gray-700 p-3 rounded-lg max-w-xs shadow">${text}</div>`;
+      }
 
-  } catch (error) {
-    console.error('Error:', error);
-    loadingMessage.innerHTML = `<div class="bg-red-500 text-white p-3 rounded-lg max-w-xs shadow">Sorry, something went wrong.</div>`;
-  }
-}
+      // Append the message to the chat box and scroll down
+      chatBox.appendChild(messageElement);
+      chatBox.scrollTop = chatBox.scrollHeight;
 
-function displayMessage(sender, text) {
-  const chatBox = document.getElementById('chat-box');
-  const messageElement = document.createElement('div');
+      return messageElement; // Return the message element for updating it later
+    }
 
-  // Determine alignment and style based on sender
-  if (sender === 'user') {
-    messageElement.className = 'flex justify-end';
-    messageElement.innerHTML = `<div class="bg-blue-500 text-white p-3 rounded-lg max-w-xs shadow">${text}</div>`;
-  } else {
-    messageElement.className = 'flex justify-start';
-    messageElement.innerHTML = `<div class="bg-gray-200 text-gray-700 p-3 rounded-lg max-w-xs shadow">${text}</div>`;
-  }
+    async function fetchOllamaModels() {
+      try {
+        const response = await fetch("http://localhost:11434/api/tags");
+        const data = await response.json();
 
-  // Append the message to the chat box and scroll down
-  chatBox.appendChild(messageElement);
-  chatBox.scrollTop = chatBox.scrollHeight;
+        let selectElement = document.getElementById("model-list");
+        selectElement.innerHTML = ""; // Clear previous options
 
-  return messageElement; // Return the message element for updating it later
-}
+        // Add a default option
+        let defaultOption = document.createElement("option");
+        defaultOption.textContent = "Select a model";
+        defaultOption.value = "";
+        selectElement.appendChild(defaultOption);
+
+        // Populate models dynamically
+        data.models.forEach(model => {
+          let option = document.createElement("option");
+          option.textContent = model.name;
+          option.value = model.name;
+          selectElement.appendChild(option);
+        });
+      } catch (error) {
+        console.error("Error fetching models:", error);
+      }
+    }
+
+    // Call function on page load
+    fetchOllamaModels();
+
 
   </script>
 </body>
+
 </html>
