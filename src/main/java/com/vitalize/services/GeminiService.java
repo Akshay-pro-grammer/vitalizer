@@ -14,7 +14,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import com.vitalize.helpers.AppConstants;
 
-@Slf4j
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class GeminiService {
 
@@ -51,7 +53,7 @@ public class GeminiService {
         // System.out.println(requestBodyNode.toString());
 
         HttpEntity<String> request = new HttpEntity<>(requestBodyNode.toString(), headers);
-
+        Logger log=LoggerFactory.getLogger(GeminiService.class);
         try {
             ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.POST, request, String.class);
             if (response.getStatusCode().is2xxSuccessful()) {

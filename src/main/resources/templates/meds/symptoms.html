@@ -42,7 +42,7 @@
                     placeholder="Search for symptoms" onkeyup="searchSymptoms()" />
             </div>
         </div>
-        <div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="max-height: 300px; overflow-y: auto">
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="max-height: 300px; overflow-y:auto">
             <div class="pb-4">
             </div>
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -61,6 +61,7 @@
                 </tbody>
             </table>
         </div>
+        <!-- Writing here -->
         <div class="flex flex-col md:flex-row gap-6">
             <!-- Input and Submit Form -->
             <form th:action="@{'/meds/diagnosis'}" th:object="${medsform}" method="post" class="mt-4 w-full md:w-1/2">
@@ -86,7 +87,7 @@
                         class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         placeholder="e.g., 1980" />
 
-                    <button type="submit"
+                        <button type="submit"
                         class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700">
                         Submit
                     </button>
@@ -126,6 +127,7 @@
                 </div>
             </section>
         </div>
+         <!-- ending here -->
         <script th:inline="javascript">
             async function Deliver2() {
                 let element = document.getElementById("helptext");
