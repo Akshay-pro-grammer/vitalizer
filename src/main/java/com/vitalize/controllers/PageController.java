@@ -91,5 +91,4 @@ public class PageController {
         session.setAttribute("message", message);
         return "redirect:/register";
     }
-    
 }

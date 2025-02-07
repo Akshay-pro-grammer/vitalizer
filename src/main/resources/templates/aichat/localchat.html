@@ -44,49 +44,59 @@
 
   <script>
     async function sendLocalMessage(event) {
-      event.preventDefault(); // Prevent form from submitting normally
-      const message = document.getElementById('message-input').value.trim();
-      if (!message) return;
+  event.preventDefault(); // Prevent form from submitting normally
 
-      displayMessage('user', message); // Display user's message
-      document.getElementById('message-input').value = ''; // Clear input
+  const message = document.getElementById('message-input').value.trim();
+  if (!message) return;
 
-      try {
-        const response = await fetch('/chat/sentiment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message })
-        });
+  displayMessage('user', message); // Show user's message
+  document.getElementById('message-input').value = ''; // Clear input
 
-        if (!response.ok) {
-          throw new Error('Network response was not ok ' + response.statusText);
-        }
+  // Show a temporary "Thinking..." message while waiting for response
+  const loadingMessage = displayMessage('vita', 'Thinking...');
 
-        const data = await response.text(); // Handle response as text
-        displayMessage('vita', data); // Display bot's response
-      } catch (error) {
-        console.error('Error:', error);
-        displayMessage('vita', "Sorry, something went wrong.");
-      }
+  try {
+    const response = await fetch('/chat/sentiment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText);
     }
 
-    function displayMessage(sender, text) {
-      const chatBox = document.getElementById('chat-box');
-      const messageElement = document.createElement('div');
+    const data = await response.text(); // Handle response as text
 
-      // Determine alignment and style based on sender
-      if (sender === 'user') {
-        messageElement.className = 'flex justify-end';
-        messageElement.innerHTML = `<div class="bg-blue-500 text-white p-3 rounded-lg max-w-xs shadow">${text}</div>`;
-      } else {
-        messageElement.className = 'flex justify-start';
-        messageElement.innerHTML = `<div class="bg-gray-200 text-gray-700 p-3 rounded-lg max-w-xs shadow">${text}</div>`;
-      }
+    // Replace "Thinking..." with the actual response
+    loadingMessage.innerHTML = `<div class="bg-gray-200 text-gray-700 p-3 rounded-lg max-w-xs shadow">${data}</div>`;
 
-      // Append the message to the chat box and scroll down
-      chatBox.appendChild(messageElement);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
+  } catch (error) {
+    console.error('Error:', error);
+    loadingMessage.innerHTML = `<div class="bg-red-500 text-white p-3 rounded-lg max-w-xs shadow">Sorry, something went wrong.</div>`;
+  }
+}
+
+function displayMessage(sender, text) {
+  const chatBox = document.getElementById('chat-box');
+  const messageElement = document.createElement('div');
+
+  // Determine alignment and style based on sender
+  if (sender === 'user') {
+    messageElement.className = 'flex justify-end';
+    messageElement.innerHTML = `<div class="bg-blue-500 text-white p-3 rounded-lg max-w-xs shadow">${text}</div>`;
+  } else {
+    messageElement.className = 'flex justify-start';
+    messageElement.innerHTML = `<div class="bg-gray-200 text-gray-700 p-3 rounded-lg max-w-xs shadow">${text}</div>`;
+  }
+
+  // Append the message to the chat box and scroll down
+  chatBox.appendChild(messageElement);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  return messageElement; // Return the message element for updating it later
+}
+
   </script>
 </body>
 </html>
