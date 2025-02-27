@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,7 @@ import com.vitalize.services.GeminiService;
 
 @RestController
 @RequestMapping("/chat")
+@CrossOrigin(origins = "http://localhost:5173")
 public class ChatRestController {
 
     @Autowired
@@ -29,7 +31,7 @@ public class ChatRestController {
 
     @PostMapping("/send")
     public ResponseEntity<?> geminiString(@RequestBody Map<String, String> request) {
-        // System.out.println(request.toString());
+        System.out.println(request.toString());
         String userMessage = request.get("message");
 
         // Call Gemini API using service layer

@@ -38,9 +38,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(authorize->{
-            authorize.requestMatchers("/meds/**").authenticated();
+            authorize.requestMatchers("/meds/**").permitAll();
             authorize.requestMatchers("/aichat/**").authenticated();
-            authorize.requestMatchers("/chat/**").authenticated();
+            authorize.requestMatchers("/chat/**").permitAll();
             authorize.anyRequest().permitAll();
         });
         httpSecurity.formLogin(formLogin->{
